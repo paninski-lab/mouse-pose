@@ -9,10 +9,8 @@ Usage:
     conda run -n iblvideo2 python scripts/preprocessing/ibl-face/plot_ibl_face_check.py
 """
 
-import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parents[3]))
 from mouse_pose.paths import load_paths
 from mouse_pose.plots.plot_keypoints import plot_labeled_frames
 

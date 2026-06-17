@@ -34,14 +34,12 @@ Usage examples:
 import argparse
 import shutil
 import subprocess
-import sys
 from itertools import product
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
-sys.path.insert(0, str(Path(__file__).parents[1]))
 from mouse_pose.paths import load_paths
 
 _paths      = load_paths()

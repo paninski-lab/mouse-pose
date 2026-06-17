@@ -2,6 +2,14 @@
 
 Pipeline for merging multiple labeled datasets into a single standardized training set for Lightning Pose.
 
+## Installation
+
+```bash
+pip install -e .
+```
+
+After that, `mouse_pose` is importable from any script without path manipulation.
+
 ---
 
 ## Workflow

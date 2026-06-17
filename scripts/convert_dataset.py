@@ -32,8 +32,6 @@ import numpy as np
 import pandas as pd
 import yaml
 
-# ── repo root & paths ─────────────────────────────────────────────────────────
-sys.path.insert(0, str(Path(__file__).parents[1]))
 from mouse_pose.paths import load_paths, repo_root
 
 _paths      = load_paths()

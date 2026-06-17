@@ -30,14 +30,12 @@ Run in iblvideo2 conda env:
 
 import argparse
 import shutil
-import sys
 from pathlib import Path
 
 import cv2
 import numpy as np
 import pandas as pd
 
-sys.path.insert(0, str(Path(__file__).parents[3]))
 from mouse_pose.paths import load_paths
 
 _paths = load_paths()
