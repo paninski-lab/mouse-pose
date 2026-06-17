@@ -1,0 +1,79 @@
+exclude:
+  keypoints:
+    - nose_r
+    - paw
+  sessions:
+    - cam0_DR3_2020_10_27_1
+    - cam0_TX56_2020_10_22_1
+    - cam0_TX57_2020_10_21_1
+    - cam0_TX60_2020_10_22_1
+    - cam0_TX61_2020_10_21_1
+    - cam0_VR2_2020_10_26_1
+
+keypoints:
+  lowerlip: lowerlip
+  mouth: mouth
+  nose_bottom: nose_bottom
+  nose_tip: nose_tip
+  nose_top: nose_top
+  nosebridge: nose_bridge
+  eye_back: eye_back_{side}
+  eye_bottom: eye_bottom_{side}
+  eye_front: eye_front_{side}
+  eye_top: eye_top_{side}
+  whisker_c1: whisker_c1_{side}
+  whisker_c2: whisker_c2_{side}
+  whisker_d1: whisker_d1_{side}
+
+sessions:
+  AD1_2021_07_19_1_cam0: left
+  AD1_2021_07_19_1_cam1: left
+  AD1_2021_07_19_2_cam0: left
+  AD1_2021_07_19_3_cam0: left
+  AD2_2021_07_19_4_cam0: left
+  AD2_2021_07_19_4_cam1: left
+  AD2_2021_07_19_5_cam0: left
+  AD2_2021_07_19_5_cam1: left
+  bias_video_cam_1_date_2020_10_23_time_11_15_35_v001: left
+  cam1_DR3_2020_10_27_1: left
+  cam1_TX56_2020_10_22_1: left
+  cam1_TX57_2020_10_21_1: left
+  cam1_TX60_2020_10_22_1: left
+  cam1_TX61_2020_10_21_1: left
+  cam1_VR2_2020_10_26_1: left
+  GC21_2021_07_19_1_cam0: left
+  GC21_2021_07_19_1_cam1: left
+  GC21_2021_07_19_2_cam0: left
+  GC21_2021_07_19_3_cam0: left
+  GC22_2021_07_19_1_cam0: left
+  GC22_2021_07_19_1_cam1: left
+  GC22_2021_07_19_2_cam0: left
+  GC22_2021_07_19_3_cam0: left
+  GC24_2021_07_20_2_cam0: left
+  GC24_2021_07_20_2_cam1: left
+  GC24_2021_07_20_3_cam0: left
+  GC24_2021_07_20_3_cam1: left
+  GC25_2021_07_20_1_cam0: left
+  GC25_2021_07_20_1_cam1: left
+  GC25_2021_07_20_2_cam0: left
+  GC25_2021_07_20_3_cam0: left
+  TX65_2021_07_20_4_cam0: left
+  TX65_2021_07_20_4_cam1: left
+  TX65_2021_07_20_6_cam0: left
+  TX68_2021_07_15_4_cam0: left
+  TX68_2021_07_15_4_cam1: left
+  TX68_2021_07_15_5_cam0: left
+  TX68_2021_07_15_7_cam0: left
+  TX69_2021_07_15_1_cam0: left
+  TX69_2021_07_15_1_cam1: left
+  TX69_2021_07_15_2_cam0: left
+  TX69_2021_07_15_3_cam1: left
+  TX69_2021_07_15_4_cam0: left
+  TX69_2021_07_15_4_cam1: left
+  TX69_2021_07_15_5_cam0: left
+  TX69_2021_07_15_6_cam0: left
+  TX69_2021_07_15_7_cam0: left
+  VG1_2021_07_20_1_cam0: left
+  VG1_2021_07_20_1_cam1: left
+  VG1_2021_07_20_2_cam0: left
+  VG1_2021_07_20_3_cam0: left

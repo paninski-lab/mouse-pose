@@ -1,0 +1,56 @@
+# Canonical keypoint vocabulary shared across all datasets.
+# Each dataset's config (configs/datasets/<name>.yaml) maps its native keypoint names to these.
+# Bilateral keypoints use _left / _right suffixes.
+
+keypoints:
+
+  # ── eye ───────────────────────────────────────────────────────────────────
+  - eye_back_left
+  - eye_back_right
+  - eye_bottom_left
+  - eye_bottom_right
+  - eye_front_left
+  - eye_front_right
+  - eye_top_left
+  - eye_top_right
+  - pupil_top_left
+  - pupil_top_right
+
+  # ── nose / mouth (lateralized) ────────────────────────────────────────────
+  - upperlip_right
+  - upperlip_left
+
+  # ── nose / mouth (midline) ────────────────────────────────────────────────
+  - nose_bridge
+  - nose_tip
+  - nose_top
+  - nose_bottom
+  - pad_center
+  - mouth
+  - lowerlip
+
+  # ── whiskers ──────────────────────────────────────────────────────────────
+  - whisker_c1_left
+  - whisker_c1_right
+  - whisker_c2_left
+  - whisker_c2_right
+  - whisker_d1_left
+  - whisker_d1_right
+  - pad_top_left
+  - pad_top_right
+  - pad_side_left
+  - pad_side_right
+
+  # ── ears ──────────────────────────────────────────────────────────────────
+  - ear_top_left
+  - ear_top_right
+  - ear_tip_left
+  - ear_tip_right
+  - ear_bottom_left
+  - ear_bottom_right
+  - ear_base_left
+  - ear_base_right
+
+  # ── paw ───────────────────────────────────────────────────────────────────
+  - wrist_left
+  - wrist_right
