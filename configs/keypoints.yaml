@@ -13,12 +13,14 @@ keypoints:
   - eye_front_right
   - eye_top_left
   - eye_top_right
-  - pupil_top_left
-  - pupil_top_right
+  - pupil_center_left
+  - pupil_center_right
 
   # ── nose / mouth (lateralized) ────────────────────────────────────────────
   - upperlip_right
   - upperlip_left
+  - tongue_end_right
+  - tongue_end_left
 
   # ── nose / mouth (midline) ────────────────────────────────────────────────
   - nose_bridge
