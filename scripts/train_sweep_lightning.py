@@ -7,22 +7,32 @@ Shares all combo/naming/command-building logic with train_sweep.py via
 mouse_pose.train — the CLI args are identical. The only real difference:
 each combo is launched as an independent Lightning Job instead of run in a
 sequential loop, and since a Job is a fresh remote process (no "come back to
-this process after training" step), training and evaluation are chained into
-one shell command per job:
+this process after training" step), data extraction, training, and evaluation
+are chained into one shell command per job:
 
-    litpose train ... && python -m mouse_pose.train --output_dir ... --csv_file ...
+    test -d <data_dir> || tar -xf <data_dir>.tar -C <data_dir's parent>
+    && litpose train ...
+    && python -m mouse_pose.train --output_dir ... --csv_file ...
+
+Each Job is an isolated snapshot of the launching Studio's own filesystem, not
+a shared mount multiple jobs write into — so every job independently checking
+"does this exist yet, if not extract it" is safe (see make_extract_command's
+docstring in mouse_pose/train.py). This is a different situation from a
+HuggingFace-style dataset cache on genuinely shared storage, which would need
+locking or pre-extraction to avoid concurrent-write races.
 
 Output lands at the same place as the local script:
   <results_dir>/<tag>/<losses_tag>/tf<N>/<backbone>/seed<N>/
   └── eval/<dataset_name>/pixel_error.csv   ← per-model evaluation results
 
 Prerequisites (not handled by this script):
-  - This machine's paths.yaml must point data_dir/results_dir at Lightning
-    teamspace storage (paths.yaml is machine-specific / gitignored, so the
-    Studio can have its own copy pointing wherever data actually lives there).
-  - data/head-fixed_vN must already be uploaded to that storage — this script
-    only launches training jobs against whatever paths.yaml resolves to, it
-    does not sync data up or results back down.
+  - This machine's paths.yaml must have data_dir pointing at wherever the
+    Studio keeps a `<data_dir>.tar` archive of data/head-fixed_vN (e.g. built
+    with `tar -cf head-fixed_v2.tar -C data head-fixed_v2` and uploaded to the
+    Studio once) — creating and uploading that archive isn't handled here.
+  - results_dir should point at persistent storage that outlives an individual
+    job's isolated filesystem (e.g. a teamspace-mounted drive), since results
+    need to survive after the job's compute is torn down.
   - The Studio (or whatever environment `lightning_sdk` launches jobs into)
     needs `litpose` on PATH and `mouse_pose` installed (`pip install -e .`).
 
@@ -32,7 +42,7 @@ Run from within a Lightning AI studio:
         --train_frames "200;400;600" \\
         --seeds "0;1;2" \\
         --backbones "vits_dino" \\
-        --machine A10G
+        --machine L4
 
 Run from outside Lightning AI (set LIGHTNING_API_KEY env var first):
     LIGHTNING_API_KEY=<key> python scripts/train_sweep_lightning.py ...
@@ -47,6 +57,7 @@ import time
 from mouse_pose.train import (
     build_combos,
     make_eval_command,
+    make_extract_command,
     make_job_name,
     make_output_dir,
     make_train_command,
@@ -90,13 +101,17 @@ def main():
         combos = [c for c in combos if not make_output_dir(*c, losses).exists()]
         print(f"After skipping existing: {len(combos)} remaining")
 
+    # Identical for every job (depends only on data_dir, not the combo) — computed once,
+    # but still has to run inside each job since it acts on that job's own filesystem.
+    extract_cmd = make_extract_command()
+
     jobs_spec = []
     for csv_file, backbone, train_frames_n, seed in combos:
         output_dir = make_output_dir(csv_file, backbone, train_frames_n, seed, losses)
         name       = make_job_name(csv_file, backbone, train_frames_n, seed, losses)
         train_cmd  = make_train_command(csv_file, backbone, train_frames_n, seed, losses, output_dir, args.debug)
         eval_cmd   = make_eval_command(output_dir, csv_file)
-        full_cmd   = " ".join(train_cmd) + " && " + " ".join(eval_cmd)
+        full_cmd   = extract_cmd + " && " + " ".join(train_cmd) + " && " + " ".join(eval_cmd)
         jobs_spec.append((name, output_dir, full_cmd))
 
     if args.dry_run:

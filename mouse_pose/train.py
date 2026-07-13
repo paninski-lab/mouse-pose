@@ -130,6 +130,26 @@ def make_eval_command(output_dir, csv_file) -> list[str]:
     ]
 
 
+def make_extract_command() -> str:
+    """Shell snippet that extracts DATA_DIR from a sibling `.tar` archive if
+    DATA_DIR doesn't already exist, meant to run once at the start of each
+    Lightning job (chained before make_train_command's output with `&&`).
+
+    Each Lightning Job is an isolated snapshot of the launching Studio's own
+    filesystem, not a shared mount multiple jobs write into concurrently — so
+    unlike a HuggingFace-style dataset cache on shared storage, there's no race
+    to guard against here. Every job independently checking "does this exist
+    yet" and extracting its own local copy if not is safe to duplicate as-is.
+
+    Returns a shell string (not an argv list, unlike the other make_*_command
+    functions) since it needs `||` — only meaningful for Lightning jobs; the
+    local sequential script never calls this because DATA_DIR is expected to
+    already exist on disk for local runs.
+    """
+    archive = f"{DATA_DIR}.tar"
+    return f'test -d "{DATA_DIR}" || tar -xf "{archive}" -C "{DATA_DIR.parent}"'
+
+
 # ── evaluation ────────────────────────────────────────────────────────────────
 
 def evaluate_model(output_dir: Path, csv_file: str) -> None:

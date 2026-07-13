@@ -89,12 +89,26 @@ conda run -n pose python scripts/train_sweep.py \
 
 ## Commands — Lightning AI, parallel (`train_sweep_lightning.py`)
 
-Identical CSV/`train_frames`/seed/backbone arguments — only the launch mechanism differs (see
-[`README.md`](../README.md#5-train-on-lightning-ai-parallel-optional) for prerequisites: Lightning
-storage must already have `data/head-fixed_v2`, and this machine's `paths.yaml` must point at it).
+Identical CSV/`train_frames`/seed/backbone arguments — only the launch mechanism differs.
 `--machine` wasn't a consideration in the original run (it was trained locally) — `L4` below is a
 reasonable default for `vits_dino`, not a reproduction of anything, adjust to what's available/cheap
-on your account:
+on your account.
+
+**One-time setup on the Studio:** archive `data/head-fixed_v2` and upload the archive (not the
+10k-file extracted directory — file-by-file transfer/snapshotting is what was slow) to wherever this
+machine's `paths.yaml` has `data_dir` pointing:
+
+```bash
+tar -cf head-fixed_v2.tar -C data head-fixed_v2
+# upload head-fixed_v2.tar to the Studio, next to where data_dir should end up
+```
+
+Each job extracts this archive into place itself if `data_dir` doesn't already exist when it starts
+(see `make_extract_command` in `mouse_pose/train.py`) — safe to do independently in every job since
+each Lightning Job is an isolated snapshot of the Studio's filesystem, not a shared mount. `paths.yaml`
+also needs `results_dir` pointing at storage that outlives an individual job (e.g. a teamspace-mounted
+drive), since results need to survive after the job's compute is torn down — unlike `data_dir`, this
+one *should* be shared/persistent across jobs.
 
 ```bash
 pip install -e ".[lightning]"

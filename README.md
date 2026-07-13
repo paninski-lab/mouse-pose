@@ -115,11 +115,16 @@ loop does, evaluation can't happen in-process there — instead `mouse_pose/trai
 CLI-invocable (`python -m mouse_pose.train --output_dir ... --csv_file ...`) and gets chained onto
 the training command with `&&` for each job.
 
-**Not handled by this script:** getting `data/head-fixed_vN` onto Lightning storage in the first
-place, and getting `results/head-fixed_vN` back off it. `paths.yaml` is machine-specific and
-gitignored, so the Studio needs its own copy pointing `data_dir`/`results_dir` at wherever data
-lives there (e.g. teamspace storage) — the script just launches jobs against whatever that
-resolves to.
+**Getting data onto Lightning storage:** each Job is an isolated snapshot of the launching Studio's
+filesystem, and syncing the ~10k individual label/image files in `data/head-fixed_vN` is slow. Instead,
+archive it once (`tar -cf head-fixed_v2.tar head-fixed_v2`) and upload just that file to the
+Studio. Every job then extracts it into place itself on first use if it's not there yet — safe to do
+independently per job since there's no shared filesystem to race on (see `make_extract_command` in
+`mouse_pose/train.py`, and `docs/train_sweep.md` for the full setup). `paths.yaml` is machine-specific
+and gitignored, so the Studio needs its own copy: `data_dir` pointing at wherever the archive lives,
+`results_dir` pointing at storage that's actually persistent/shared across jobs (e.g. a
+teamspace-mounted drive) — the two have different persistence needs and don't have to be on the same
+kind of storage.
 
 ---
 
