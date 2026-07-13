@@ -44,8 +44,7 @@ Re-running is safe — images are skipped if already present.
 ### 3. Build a merged training set (run as needed)
 
 ```bash
-conda run -n pose python scripts/build_dataset.py --tag all
-conda run -n pose python scripts/build_dataset.py --tag face+ibl --datasets facemap ibl
+conda run -n pose python scripts/build_dataset.py --tag face+ibl --datasets facemap ibl --n_frames 600
 ```
 
 Outputs to `data/head-fixed/`:
@@ -55,22 +54,32 @@ Outputs to `data/head-fixed/`:
 Frame selection is reproducible: the same `--seed` + dataset name always produces the same frames,
 regardless of which other datasets are included. The default seed is 42.
 
+**See [`docs/build_dataset.md`](docs/build_dataset.md) for why `--n_frames` is set the way it is** —
+in short, every dataset in a tag gets the same frame budget so that comparisons across dataset
+combinations aren't confounded by total training-set size.
+
 ### 4. Train
 
 ```bash
 # Dry run to preview commands
 conda run -n pose python scripts/train_sweep.py --dry_run \
-    --csv_files "CollectedData_facemap_train.csv;CollectedData_all_train.csv" \
-    --train_frames "400;1" \
+    --csv_files "CollectedData_facemap-600_train.csv;CollectedData_face+ibl+cheese_train.csv" \
+    --train_frames "200;400;600" \
     --seeds "0;1;2"
 
 # Full sweep
 conda run -n pose python scripts/train_sweep.py \
-    --csv_files "CollectedData_facemap_train.csv;CollectedData_all_train.csv" \
-    --train_frames "400;1" \
+    --csv_files "CollectedData_facemap-600_train.csv;CollectedData_face+ibl+cheese_train.csv" \
+    --train_frames "200;400;600" \
     --seeds "0;1;2" \
-    --backbones "resnet50_animal_ap10k"
+    --backbones "vits_dino"
 ```
+
+`--train_frames` subsamples further from whatever pool `build_dataset.py` wrote (see
+[`docs/build_dataset.md`](docs/build_dataset.md)) — it must be ≤ the CSV's `--n_frames`. If you only
+need one data point per tag rather than a learning curve, `--train_frames 200` alone is the standard
+choice: small enough that a single dataset performs only "reasonable but not great," which is the
+regime where dataset-merging effects are easiest to see.
 
 Results land at `results/head-fixed/<tag>/<losses>/tf<N>/<backbone>/seed<N>/`.
 Evaluation runs automatically after each model against every per-dataset test CSV.
@@ -230,7 +239,49 @@ poseinterface/
 
 1. Place raw data under `_raw/<name>/` with the standard DLC layout
 2. Create `configs/datasets/<name>.yaml` (see format above)
-3. Add `<name>` to `EVAL_DATASETS` in `scripts/train_sweep.py`
+3. Add `<name>` to `EVAL_DATASETS` in `scripts/train_sweep.py` **and** `ALL_DATASETS` in
+   `scripts/build_dataset.py` — neither list is derived from `configs/datasets/`, both must be
+   updated by hand or the new dataset silently won't be included in default `--tag all`-style runs
+   or per-dataset evaluation
 4. Run `conda run -n pose python scripts/convert_dataset.py --dataset <name>`
 5. If custom visibility logic is needed, add a function to `POST_PROCESS` in `convert_dataset.py`
 6. Rebuild any merged datasets with `scripts/build_dataset.py`
+
+### Renaming or deprecating a dataset
+
+Dataset identity is a *name*, not a single file, and it's referenced in several places that
+don't cross-check each other. When renaming (e.g. `ibl-face` → `ibl`) or deprecating one
+(e.g. `ibl-paw`), update all of:
+
+1. `_raw/<old-name>/` → `_raw/<new-name>/` (physical rename; `convert_dataset.py` resolves the
+   raw directory as `<raw_dir>/<dataset-name>`, so these must match)
+2. `configs/datasets/<old-name>.yaml` → `configs/datasets/<new-name>.yaml`
+3. `ALL_DATASETS` in `scripts/build_dataset.py` and `EVAL_DATASETS` in `scripts/train_sweep.py`
+4. Any hardcoded raw-dir constants inside preprocessing scripts (e.g.
+   `scripts/preprocessing/ibl-face/create_ibl_face_dataset.py` had `IBL_FACE_DIR` hardcoded to
+   `"ibl-face"` independent of the config filename)
+5. This README and any `scripts/preprocessing/*/README.md` — grep for the old name
+6. Existing `data/head-fixed_vN/` and `results/head-fixed_vN/` directories are a **frozen
+   historical record** of whatever name was used at build time — don't rename files inside them
+   to match; instead rebuild a new version (see below) once the rename is done upstream
+
+A pipeline preprocessing folder name (e.g. `scripts/preprocessing/ibl-face/`) can reasonably stay
+as-is even after the dataset itself is renamed — it names the *process* that produces the dataset,
+not the dataset's identity in `configs/datasets/` or `_raw/`.
+
+### Dataset versioning
+
+`paths.yaml`'s `data_dir` and `results_dir` point at unversioned working paths
+(`data/head-fixed`, `results/head-fixed`) — these are scratch locations, not meant to be committed
+to or read from directly. The convention is:
+
+1. Leave `paths.yaml` pointed at the unversioned path
+2. Run the full convert → build (→ train) pipeline there
+3. Once it succeeds, rename the directory to freeze it: `data/head-fixed` → `data/head-fixed_vN`,
+   `results/head-fixed` → `results/head-fixed_vN`
+
+**Keep `data/head-fixed_vN` and `results/head-fixed_vN` numbering in lockstep** — results trained
+against `data/head-fixed_v1` belong in `results/head-fixed_v1`, not `results/head-fixed_v2`. A
+mismatch here previously caused confusion about which data version a set of results actually came
+from; if you bump the data version, bump the results version to match even if you haven't trained
+anything against it yet.
