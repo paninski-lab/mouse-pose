@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Create the _raw/ibl-face dataset using the iblvideo LP pipeline, one session at a time.
+Create the _raw/ibl dataset using the iblvideo LP pipeline, one session at a time.
 
 Processing one session per video ensures the ROI detection network can compute a valid
 crop window (averaged over frames from a single animal in a single rig).
@@ -15,10 +15,10 @@ Steps per session:
   6. Compute pupil_center_r as median of 4 pupil keypoints (NaN if any is below threshold).
 
 Results from all sessions are merged with original paw labels and written as
-DLC-format CollectedData.csv / CollectedData_test.csv in _raw/ibl-face/.
+DLC-format CollectedData.csv / CollectedData_test.csv in _raw/ibl/.
 
-Session videos: _raw/ibl-face/session_videos/{split}/{session}/videos/_iblrig_leftCamera.raw.mp4
-Parquets:       _raw/ibl-face/session_videos/{split}/{session}/alf/_ibl_leftCamera.lightningPose.pqt
+Session videos: _raw/ibl/session_videos/{split}/{session}/videos/_iblrig_leftCamera.raw.mp4
+Parquets:       _raw/ibl/session_videos/{split}/{session}/alf/_ibl_leftCamera.lightningPose.pqt
 
 Run in iblvideo2 conda env:
     conda run -n iblvideo2 python scripts/preprocessing/ibl-face/create_ibl_face_dataset.py
@@ -42,8 +42,8 @@ _paths = load_paths()
 RAW_DIR = Path(_paths["raw_dir"])
 
 IBL_PAW_DIR  = RAW_DIR / "ibl-paw"
-IBL_FACE_DIR = RAW_DIR / "ibl-face"
-SESSION_VIDS = IBL_FACE_DIR / "session_videos"
+IBL_DIR = RAW_DIR / "ibl"
+SESSION_VIDS = IBL_DIR / "session_videos"
 
 THRESH     = 0.9
 FPS        = 60
@@ -170,7 +170,7 @@ def compute_pupil_center(face_preds: pd.DataFrame) -> tuple[np.ndarray, np.ndarr
 
 def copy_images() -> None:
     src = IBL_PAW_DIR / "labeled-data"
-    dst = IBL_FACE_DIR / "labeled-data"
+    dst = IBL_DIR / "labeled-data"
     n_copied = n_skip = 0
     for src_f in src.rglob("*.png"):
         dst_f = dst / src_f.relative_to(src)
@@ -282,7 +282,7 @@ def process_split(
 
 
 def main(dry_run=False, skip_video=False, skip_pipeline=False):
-    IBL_FACE_DIR.mkdir(parents=True, exist_ok=True)
+    IBL_DIR.mkdir(parents=True, exist_ok=True)
 
     if not dry_run:
         from iblvideo import download_lp_models
@@ -306,7 +306,7 @@ def main(dry_run=False, skip_video=False, skip_pipeline=False):
         if dry_run:
             continue
 
-        out_csv = IBL_FACE_DIR / csv_name
+        out_csv = IBL_DIR / csv_name
         result.to_csv(out_csv)
         n_pupil  = int((~result[(SCORER, "pupil_center_r", "x")].isna()).sum())
         n_nose   = int((~result[(SCORER, "nose_tip",       "x")].isna()).sum())
@@ -322,8 +322,8 @@ def main(dry_run=False, skip_video=False, skip_pipeline=False):
     if not dry_run:
         print(f"\nNext steps:")
         print(f"  1. conda run -n iblvideo2 python scripts/preprocessing/ibl-face/plot_ibl_face_check.py")
-        print(f"  2. Review check images in {IBL_FACE_DIR / 'labeled-data-check'}/")
-        print(f"  3. conda run -n pose python scripts/convert_dataset.py --dataset ibl-face")
+        print(f"  2. Review check images in {IBL_DIR / 'labeled-data-check'}/")
+        print(f"  3. conda run -n pose python scripts/convert_dataset.py --dataset ibl")
         print(f"  4. Rebuild merged datasets with scripts/build_dataset.py")
 
 

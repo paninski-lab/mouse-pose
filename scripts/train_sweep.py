@@ -40,13 +40,13 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from mouse_pose.paths import load_paths
+from mouse_pose.paths import load_paths, repo_root
 
 _paths      = load_paths()
 DATA_DIR    = Path(_paths["data_dir"])
 RESULTS_DIR = Path(_paths["results_dir"])
 
-CONFIG_FILE = DATA_DIR / "config_head-fixed.yaml"
+CONFIG_FILE = repo_root() / "configs" / "model.yaml"
 
 # Every model is evaluated against each dataset's test CSV. Pixel error is NaN
 # for keypoints absent from a given dataset; the plotting script handles filtering.

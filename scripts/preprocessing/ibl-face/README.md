@@ -1,8 +1,12 @@
-# ibl-face preprocessing
+# ibl preprocessing
 
 Generates pseudo-labels for face keypoints (pupil, nose, tongue) by running the
 [iblvideo](https://github.com/int-brain-lab/iblvideo) Lightning Pose pipeline on
 sessions from `_raw/ibl-paw`, then merges them with the existing paw labels.
+
+NOTE: after creating the pseudo-labels, all ~10k frames were reviewed and adjusted as necessary
+in the Lightning Pose app (July 2026). Therefore the provided `ibl` labels are no longer 
+pseudo-labels, but full human annotations
 
 ## Why per-session videos
 
@@ -17,7 +21,7 @@ For each session in `_raw/ibl-paw/`:
 1. **Build session video** — for every labeled frame, load 2 context frames before
    and 2 after (5-frame chunk) from `_raw/ibl-paw/labeled-data/<session>/`. Frames
    are upscaled 4× (320×256 → 1280×1024) to match iblvideo's LEFT_VIDEO spec.
-   Written to `_raw/ibl-face/session_videos/{split}/{session}/videos/_iblrig_leftCamera.raw.mp4`.
+   Written to `_raw/ibl/session_videos/{split}/{session}/videos/_iblrig_leftCamera.raw.mp4`.
 
 2. **Run iblvideo LP pipeline** (`lightning_pose()`) — runs ROI detection then
    specialized networks: eye (×5 ensemble), nose_tip, tongue (×1), paws (×5 ensemble).
@@ -65,7 +69,7 @@ conda run -n iblvideo2 python scripts/preprocessing/ibl-face/plot_ibl_face_check
 ## After the pipeline
 
 ```bash
-conda run -n pose python scripts/convert_dataset.py --dataset ibl-face
+conda run -n pose python scripts/convert_dataset.py --dataset ibl
 python scripts/build_dataset.py --tag <tag>
 ```
 
