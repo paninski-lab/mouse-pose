@@ -49,6 +49,9 @@ repository = "https://github.com/paninski-lab/mouse-pose"
 python = ">=3.10,<3.13"
 
 [project.optional-dependencies]
+lightning = [
+    "lightning-sdk",
+]
 dev = [
     "pre-commit",
     "pytest",

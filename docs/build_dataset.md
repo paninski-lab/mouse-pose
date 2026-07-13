@@ -8,24 +8,40 @@ these CSVs are built follows from making that comparison fair.
 
 ---
 
-## Design principle: a balanced per-dataset frame budget
+## Naming convention: bare tag = full, `-600` = balanced
 
-If a merged dataset (e.g. `face+ibl+cheese`) simply concatenated every available frame
-from every source dataset, a merged model's advantage over a single-dataset model would
-be a tangle of two effects: (1) it saw more *total* frames, and (2) it saw more *varied*
-frames. We only care about (2) — whether cross-dataset variety improves generalization —
-so every dataset that goes into a merge contributes the **same number of frames**.
-Concretely, `face+ibl` (facemap + ibl, 600 frames each) has the same total training set
-size as `facemap-600` alone, so any pixel-error difference between them is attributable
-to the source mix, not the amount of data.
+Every tag comes in two flavors, and the suffix tells you which:
 
-This is also why every single-dataset condition has a matching `<dataset>-600` tag
-(`facemap-600`, `ibl-600`, `cheese-2d-600`) *in addition to* the full unsampled
-`<dataset>` CSV (`facemap`, `ibl`, `cheese-2d`, which each contain that dataset's entire
-train split). The `-600` versions are the actual single-dataset baselines used in
-comparisons against merges — they're capped at the same pool size so the "does merging
-help" comparison is apples-to-apples. The full/uncapped CSVs exist for the cases where
-you *do* want a dataset's full available labels (e.g. as an upper-bound reference).
+- **Bare (`facemap`, `face+ibl`, `face+ibl+cheese`, ...)** — every dataset contributes
+  *all* of its available train frames, unbalanced. Built with `build_dataset.py --n_frames -1`.
+- **`-600` (`facemap-600`, `face+ibl-600`, `face+ibl+cheese-600`, ...)** — every dataset
+  contributes the *same* number of frames (600), balanced. Built with `--n_frames 600`.
+
+This one rule applies uniformly to single-dataset and merge tags alike — there's no
+special case for merges.
+
+## Design principle: why both a balanced and an unbalanced version exist
+
+These answer two different questions, and neither is strictly "the right one":
+
+- **Balanced (`-600`) answers: does cross-dataset *variety* help, independent of quantity?**
+  If a merged dataset simply concatenated every available frame from every source
+  dataset, a merged model's advantage over a single-dataset model would be a tangle of
+  two effects: (1) it saw more *total* frames, and (2) it saw more *varied* frames. The
+  `-600` tags isolate (2) by giving every dataset in a tag the same frame budget —
+  `face+ibl-600` (600 facemap + 600 ibl) has the same total training-set size as
+  `facemap-600` alone, so any pixel-error difference between them is attributable to the
+  source mix, not the amount of data.
+- **Full (bare) answers: what's the best model to actually deploy?** If you don't care
+  about controlling for dataset size — you just want the best-performing model you can
+  train from everything currently labeled — use every frame from every dataset. This is
+  the practically relevant comparison once you've used the balanced numbers to decide
+  *which* datasets are worth combining at all.
+
+Concretely: `facemap` (1800 frames, full) vs. `facemap-600` (600 frames, capped) are
+*not* a fair single-vs-merged comparison pair — they only differ in size, not source mix.
+The apples-to-apples comparisons are `-600` vs `-600` (balanced) and bare vs. bare (full).
+Don't compare a bare tag against a `-600` tag and attribute the difference to merging.
 
 ## Two layers of "frame count": build-time pool vs. train-time subsample
 
@@ -52,6 +68,12 @@ already performing well, so the marginal value of merging is harder to see. If y
 have budget to train one point per tag, use `--train_frames 200`; sweep 200/400/600 when
 you want the full learning-curve picture (this is what `results/head-fixed_v1` did).
 
+For the **full (bare)** tags, there's no pool to subsample from beyond what's already
+there — pass `--train_frames 1` to `train_sweep.py`/`train_sweep_lightning.py`, which is
+Lightning Pose's own convention for "use every frame in the CSV." Sweeping 200/400/600
+against a bare tag wouldn't be meaningful since those tags aren't a fixed common pool
+across dataset combinations the way the `-600` tags are (see `docs/train_sweep.md`).
+
 ## Test sets are never subsampled
 
 `build_dataset.py` always writes the *full*, unsampled test split for every dataset in a
@@ -67,7 +89,10 @@ than on the merged test set as a whole.
 `build_dataset.py` has no `--data_dir` override (unlike `convert_dataset.py`) — it always
 writes to whatever `data_dir` in `paths.yaml` currently points at. The convention is to
 leave `paths.yaml` pointed at the unversioned working path (`data/head-fixed`), run the
-full pipeline there, then rename the directory once everything succeeds:
+full pipeline there, then rename the directory once everything succeeds. Adding tags to
+an existing frozen version later (as in step 5 below) means pointing `data_dir` at that
+version directly instead (`data/head-fixed_v2`), since there's no unversioned scratch dir
+to build into anymore once it's been renamed:
 
 ```bash
 # 1. Convert each raw dataset (slow — copies images). Run once each, or whenever a
@@ -81,33 +106,44 @@ conda run -n pose python scripts/build_dataset.py --tag facemap-600   --datasets
 conda run -n pose python scripts/build_dataset.py --tag ibl-600       --datasets ibl                 --n_frames 600
 conda run -n pose python scripts/build_dataset.py --tag cheese-2d-600 --datasets cheese-2d            --n_frames 600
 
-# 3. Pairwise and triple merges, same pool size per dataset.
-conda run -n pose python scripts/build_dataset.py --tag face+cheese     --datasets facemap cheese-2d     --n_frames 600
-conda run -n pose python scripts/build_dataset.py --tag face+ibl       --datasets facemap ibl           --n_frames 600
-conda run -n pose python scripts/build_dataset.py --tag cheese+ibl     --datasets cheese-2d ibl         --n_frames 600
-conda run -n pose python scripts/build_dataset.py --tag face+ibl+cheese --datasets facemap ibl cheese-2d --n_frames 600
+# 3. Pairwise and triple merges, balanced (same pool size per dataset).
+conda run -n pose python scripts/build_dataset.py --tag face+cheese-600     --datasets facemap cheese-2d     --n_frames 600
+conda run -n pose python scripts/build_dataset.py --tag face+ibl-600       --datasets facemap ibl           --n_frames 600
+conda run -n pose python scripts/build_dataset.py --tag cheese+ibl-600     --datasets cheese-2d ibl         --n_frames 600
+conda run -n pose python scripts/build_dataset.py --tag face+ibl+cheese-600 --datasets facemap ibl cheese-2d --n_frames 600
 
 # 4. Freeze this build as a version.
 mv data/head-fixed data/head-fixed_v2
+
+# 5. Added later, directly into data/head-fixed_v2: full/unbalanced merges (every frame
+#    from every dataset, no cap — see "why both a balanced and unbalanced version exist"
+#    above). Single-dataset full CSVs already exist from step 1, no rebuild needed there.
+conda run -n pose python scripts/build_dataset.py --tag face+cheese     --datasets facemap cheese-2d     --n_frames -1
+conda run -n pose python scripts/build_dataset.py --tag face+ibl       --datasets facemap ibl           --n_frames -1
+conda run -n pose python scripts/build_dataset.py --tag cheese+ibl     --datasets cheese-2d ibl         --n_frames -1
+conda run -n pose python scripts/build_dataset.py --tag face+ibl+cheese --datasets facemap ibl cheese-2d --n_frames -1
 ```
 
 Seed is left at the `build_dataset.py` default (42) throughout, so frame selection is
 reproducible and comparable across tags — the docstring in `build_dataset.py` guarantees
 the same `--seed` + dataset name always samples the same frames regardless of which other
-datasets are included in a given tag.
+datasets are included in a given tag. (Seed is moot for the `--n_frames -1` full tags —
+taking every frame doesn't involve a random choice.)
 
-### Result: 10 tags, 20 CSVs
+### Result: 14 tags, 28 CSVs
 
 | Tag | Datasets | Train frames | Purpose |
 |---|---|---|---|
-| `facemap` / `ibl` / `cheese-2d` | single (full) | 1800 / 5962 / 665 | upper-bound reference, not used in the balanced comparison |
-| `facemap-600` / `ibl-600` / `cheese-2d-600` | single (capped) | 600 / 600 / 600 | single-dataset baselines |
-| `face+cheese` / `face+ibl` / `cheese+ibl` | pairwise | 1200 | two-dataset merges |
-| `face+ibl+cheese` | all three | 1800 | three-dataset merge |
+| `facemap` / `ibl` / `cheese-2d` | single (full) | 1800 / 5962 / 665 | full-data single-dataset reference |
+| `facemap-600` / `ibl-600` / `cheese-2d-600` | single (capped) | 600 / 600 / 600 | balanced single-dataset baselines |
+| `face+cheese` / `face+ibl` / `cheese+ibl` | pairwise (full) | 2465 / 7762 / 6627 | full-data two-dataset merges |
+| `face+cheese-600` / `face+ibl-600` / `cheese+ibl-600` | pairwise (capped) | 1200 | balanced two-dataset merges |
+| `face+ibl+cheese` | all three (full) | 8427 | full-data three-dataset merge |
+| `face+ibl+cheese-600` | all three (capped) | 1800 | balanced three-dataset merge |
 
 Note there's no `all` tag — in the previous build (`data/head-fixed_v1`) `all` and
 `face+ibl+cheese` were identical (both the facemap+ibl+cheese-2d merge), just under two
-different names. `face+ibl+cheese` is kept since it follows the same `<short>+<short>`
+different names. `face+ibl+cheese-600` is kept since it follows the same `<short>+<short>`
 naming convention as the pairwise tags.
 
 ## Why `ibl` and not `ibl-paw`

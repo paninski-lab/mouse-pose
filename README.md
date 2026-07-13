@@ -44,7 +44,11 @@ Re-running is safe — images are skipped if already present.
 ### 3. Build a merged training set (run as needed)
 
 ```bash
-conda run -n pose python scripts/build_dataset.py --tag face+ibl --datasets facemap ibl --n_frames 600
+# balanced: every dataset capped at the same frame count — tag names this explicitly
+conda run -n pose python scripts/build_dataset.py --tag face+ibl-600 --datasets facemap ibl --n_frames 600
+
+# full: every dataset contributes everything it has, unbalanced
+conda run -n pose python scripts/build_dataset.py --tag face+ibl --datasets facemap ibl --n_frames -1
 ```
 
 Outputs to `data/head-fixed/`:
@@ -52,24 +56,26 @@ Outputs to `data/head-fixed/`:
 - `CollectedData_<tag>_test.csv`
 
 Frame selection is reproducible: the same `--seed` + dataset name always produces the same frames,
-regardless of which other datasets are included. The default seed is 42.
+regardless of which other datasets are included. The default seed is 42 (moot for `--n_frames -1`,
+which always takes every frame).
 
-**See [`docs/build_dataset.md`](docs/build_dataset.md) for why `--n_frames` is set the way it is** —
-in short, every dataset in a tag gets the same frame budget so that comparisons across dataset
-combinations aren't confounded by total training-set size.
+**See [`docs/build_dataset.md`](docs/build_dataset.md) for the full naming convention and why both a
+balanced (`-600`) and full (bare) version of each tag exist** — in short, `-600` isolates whether
+cross-dataset variety helps independent of data quantity, while the full/bare version answers what's
+actually the best model to deploy.
 
 ### 4. Train
 
 ```bash
 # Dry run to preview commands
 conda run -n pose python scripts/train_sweep.py --dry_run \
-    --csv_files "CollectedData_facemap-600_train.csv;CollectedData_face+ibl+cheese_train.csv" \
+    --csv_files "CollectedData_facemap-600_train.csv;CollectedData_face+ibl+cheese-600_train.csv" \
     --train_frames "200;400;600" \
     --seeds "0;1;2"
 
 # Full sweep
 conda run -n pose python scripts/train_sweep.py \
-    --csv_files "CollectedData_facemap-600_train.csv;CollectedData_face+ibl+cheese_train.csv" \
+    --csv_files "CollectedData_facemap-600_train.csv;CollectedData_face+ibl+cheese-600_train.csv" \
     --train_frames "200;400;600" \
     --seeds "0;1;2" \
     --backbones "vits_dino"
@@ -83,6 +89,37 @@ regime where dataset-merging effects are easiest to see.
 
 Results land at `results/head-fixed/<tag>/<losses>/tf<N>/<backbone>/seed<N>/`.
 Evaluation runs automatically after each model against every per-dataset test CSV.
+
+### 5. Train on Lightning AI (parallel, optional)
+
+`scripts/train_sweep_lightning.py` takes the exact same CLI args as `train_sweep.py` above, but
+launches every combo as an independent Lightning Job instead of looping sequentially:
+
+```bash
+pip install -e ".[lightning]"
+
+# from within a Lightning AI studio
+python scripts/train_sweep_lightning.py \
+    --csv_files "CollectedData_facemap-600_train.csv;CollectedData_face+ibl+cheese-600_train.csv" \
+    --train_frames "200;400;600" \
+    --seeds "0;1;2" \
+    --backbones "vits_dino" \
+    --machine L4
+```
+
+Both scripts share their combo generation, naming, and `litpose train` command-building via
+`mouse_pose/train.py` — they only differ in *how* a command gets executed (subprocess loop vs.
+`Job.run`), so there's one place to change if the sweep logic itself needs to change. Because a
+Lightning Job is a fresh remote process with no way to "come back" to it afterward like the local
+loop does, evaluation can't happen in-process there — instead `mouse_pose/train.py` is itself
+CLI-invocable (`python -m mouse_pose.train --output_dir ... --csv_file ...`) and gets chained onto
+the training command with `&&` for each job.
+
+**Not handled by this script:** getting `data/head-fixed_vN` onto Lightning storage in the first
+place, and getting `results/head-fixed_vN` back off it. `paths.yaml` is machine-specific and
+gitignored, so the Studio needs its own copy pointing `data_dir`/`results_dir` at wherever data
+lives there (e.g. teamspace storage) — the script just launches jobs against whatever that
+resolves to.
 
 ---
 
@@ -199,19 +236,23 @@ mouse-pose/
   configs/
     keypoints.yaml              canonical keypoint vocabulary (41 kps)
     model.yaml                  LP model config (41 keypoints); data_dir/csv_file
-                                 overridden per-run by train_sweep.py
+                                 overridden per-run by train_sweep*.py
     datasets/
       <dataset>.yaml            per-dataset conversion config
 
   scripts/
     convert_dataset.py          per-dataset conversion (run once)
     build_dataset.py            subsampling + merging (run freely)
-    train_sweep.py              LP training sweep + evaluation
+    train_sweep.py              LP training sweep + evaluation, local/sequential
+    train_sweep_lightning.py    same sweep, Lightning AI/parallel (see mouse_pose/train.py)
     preprocessing/
       ibl-face/                 iblvideo pseudo-label pipeline
 
   mouse_pose/
     paths.py                    path resolution from paths.yaml
+    train.py                    sweep combo/naming/command logic shared by both
+                                 train_sweep*.py scripts; also a standalone CLI
+                                 (`python -m mouse_pose.train`) for evaluation only
     plots/
       plot_keypoints.py         keypoint overlay visualization
 
@@ -235,11 +276,15 @@ poseinterface/
         pixel_error.csv
 ```
 
+Model checkpoints (`*.ckpt`) are deleted once evaluation completes — `eval/<dataset>/` is what's kept
+long-term, not the trained weights. This happens in `mouse_pose.train.evaluate_model`, so it applies
+whether a run finished locally or on Lightning AI.
+
 ### Adding a new dataset
 
 1. Place raw data under `_raw/<name>/` with the standard DLC layout
 2. Create `configs/datasets/<name>.yaml` (see format above)
-3. Add `<name>` to `EVAL_DATASETS` in `scripts/train_sweep.py` **and** `ALL_DATASETS` in
+3. Add `<name>` to `EVAL_DATASETS` in `mouse_pose/train.py` **and** `ALL_DATASETS` in
    `scripts/build_dataset.py` — neither list is derived from `configs/datasets/`, both must be
    updated by hand or the new dataset silently won't be included in default `--tag all`-style runs
    or per-dataset evaluation
@@ -256,7 +301,7 @@ don't cross-check each other. When renaming (e.g. `ibl-face` → `ibl`) or depre
 1. `_raw/<old-name>/` → `_raw/<new-name>/` (physical rename; `convert_dataset.py` resolves the
    raw directory as `<raw_dir>/<dataset-name>`, so these must match)
 2. `configs/datasets/<old-name>.yaml` → `configs/datasets/<new-name>.yaml`
-3. `ALL_DATASETS` in `scripts/build_dataset.py` and `EVAL_DATASETS` in `scripts/train_sweep.py`
+3. `ALL_DATASETS` in `scripts/build_dataset.py` and `EVAL_DATASETS` in `mouse_pose/train.py`
 4. Any hardcoded raw-dir constants inside preprocessing scripts (e.g.
    `scripts/preprocessing/ibl-face/create_ibl_face_dataset.py` had `IBL_FACE_DIR` hardcoded to
    `"ibl-face"` independent of the config filename)

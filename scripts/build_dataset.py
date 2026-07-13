@@ -10,9 +10,15 @@ Produces (in data_dir):
   CollectedData_<tag>_train.csv  merged train labels
   CollectedData_<tag>_test.csv   merged test labels (all frames, no subsampling)
 
+--n_frames caps how many frames each dataset contributes (same cap for every
+dataset in --datasets, so merges stay balanced — see docs/build_dataset.md).
+Pass --n_frames -1 to instead take every available frame from every dataset,
+unbalanced. By convention tags built this way drop the frame count from their
+name (e.g. "face+cheese"), while balanced tags include it (e.g. "face+cheese-600").
+
 Usage:
-  python scripts/build_dataset.py --tag all
-  python scripts/build_dataset.py --tag face+ibl --datasets facemap ibl --n_frames 200
+  python scripts/build_dataset.py --tag face+ibl-600 --datasets facemap ibl --n_frames 600
+  python scripts/build_dataset.py --tag face+ibl     --datasets facemap ibl --n_frames -1
 """
 
 import argparse
@@ -61,9 +67,12 @@ def main(datasets: list[str], n_frames: int, seed: int, tag: str) -> None:
         train_df = read_csv(train_csv)
         print(f"  Train: {len(train_df)} frames available")
 
-        n = min(n_frames, len(train_df))
-        if n < n_frames:
-            print(f"  WARNING: only {n} frames available (requested {n_frames})")
+        if n_frames < 0:
+            n = len(train_df)
+        else:
+            n = min(n_frames, len(train_df))
+            if n < n_frames:
+                print(f"  WARNING: only {n} frames available (requested {n_frames})")
         rng    = _dataset_rng(seed, name)
         idx    = rng.choice(len(train_df), size=n, replace=False)
         sample = train_df.iloc[sorted(idx)]
@@ -111,7 +120,10 @@ if __name__ == "__main__":
         "--datasets", nargs="+", default=ALL_DATASETS,
         help=f"Datasets to include (default: {ALL_DATASETS})",
     )
-    parser.add_argument("--n_frames", type=int, default=600, help="frames to sample per dataset (default: 600)")
+    parser.add_argument(
+        "--n_frames", type=int, default=600,
+        help="frames to sample per dataset (default: 600); -1 = use every available frame, no subsampling",
+    )
     parser.add_argument("--seed",     type=int, default=42,  help="random seed (default: 42)")
     args = parser.parse_args()
     main(args.datasets, args.n_frames, args.seed, args.tag)

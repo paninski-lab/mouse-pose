@@ -28,12 +28,12 @@ import argparse
 from pathlib import Path
 
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from PIL import Image
-
 
 # Distinct colors for up to ~20 keypoints; cycles if more are present.
 _COLORS = plt.cm.tab20.colors
@@ -162,13 +162,24 @@ def main() -> None:
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=__doc__,
     )
-    parser.add_argument("--csv",            required=True, type=Path, help="Path to CollectedData CSV")
-    parser.add_argument("--data_dir",       required=True, type=Path, help="Dataset root (images are relative to this)")
-    parser.add_argument("--out_dir",        required=True, type=Path, help="Output directory for annotated images")
-    parser.add_argument("--n_frames",       type=int, default=100,    help="Frames to sample (default: 100); ignored with --one_per_session")
-    parser.add_argument("--seed",           type=int, default=42,     help="Random seed (default: 42)")
-    parser.add_argument("--one_per_session", action="store_true",     help="Sample one frame per session")
-    parser.add_argument("--flat",           action="store_true",      help="Save all images flat in out_dir (no subdirectories)")
+    parser.add_argument("--csv", required=True, type=Path, help="Path to CollectedData CSV")
+    parser.add_argument(
+        "--data_dir", required=True, type=Path, help="Dataset root (images are relative to this)",
+    )
+    parser.add_argument(
+        "--out_dir", required=True, type=Path, help="Output directory for annotated images",
+    )
+    parser.add_argument(
+        "--n_frames", type=int, default=100,
+        help="Frames to sample (default: 100); ignored with --one_per_session",
+    )
+    parser.add_argument("--seed", type=int, default=42, help="Random seed (default: 42)")
+    parser.add_argument(
+        "--one_per_session", action="store_true", help="Sample one frame per session",
+    )
+    parser.add_argument(
+        "--flat", action="store_true", help="Save all images flat in out_dir (no subdirectories)",
+    )
     args = parser.parse_args()
 
     plot_labeled_frames(
