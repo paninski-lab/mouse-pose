@@ -37,6 +37,7 @@ dependencies = [
     "pandas (>=2.2.2)",
     "pillow",
     "scikit-learn (>=1.5.0)",
+    "seaborn",
 ]
 
 [project.urls]
