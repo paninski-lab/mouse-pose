@@ -141,13 +141,23 @@ def make_extract_command() -> str:
     to guard against here. Every job independently checking "does this exist
     yet" and extracting its own local copy if not is safe to duplicate as-is.
 
+    Also ensures DATA_DIR/videos exists: litpose's config always points
+    `video_dir` at this path even though the head-fixed dataset trains from
+    already-extracted frames, and the archive doesn't necessarily contain an
+    entry for it if it was empty when tarred (`mkdir -p` after the
+    test/extract step so it's created either way, whether or not extraction
+    ran).
+
     Returns a shell string (not an argv list, unlike the other make_*_command
     functions) since it needs `||` — only meaningful for Lightning jobs; the
     local sequential script never calls this because DATA_DIR is expected to
     already exist on disk for local runs.
     """
     archive = f"{DATA_DIR}.tar"
-    return f'test -d "{DATA_DIR}" || tar -xf "{archive}" -C "{DATA_DIR.parent}"'
+    return (
+        f'test -d "{DATA_DIR}" || tar -xf "{archive}" -C "{DATA_DIR.parent}"'
+        f' && mkdir -p "{DATA_DIR / "videos"}"'
+    )
 
 
 # ── evaluation ────────────────────────────────────────────────────────────────

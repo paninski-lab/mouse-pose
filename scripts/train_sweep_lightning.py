@@ -11,6 +11,7 @@ this process after training" step), data extraction, training, and evaluation
 are chained into one shell command per job:
 
     test -d <data_dir> || tar -xf <data_dir>.tar -C <data_dir's parent>
+    && mkdir -p <data_dir>/videos
     && litpose train ...
     && python -m mouse_pose.train --output_dir ... --csv_file ...
 
