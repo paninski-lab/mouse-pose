@@ -41,6 +41,14 @@ def csv_stem(csv_file: str) -> str:
     return Path(csv_file).stem.split("_", 1)[1]
 
 
+def infer_csv_file(output_dir: Path) -> str:
+    """Inverse of csv_stem applied inside make_output_dir: the first path
+    component under RESULTS_DIR is always csv_stem(csv_file), so the original
+    train CSV filename can be recovered from output_dir alone."""
+    rel = Path(output_dir).resolve().relative_to(RESULTS_DIR.resolve())
+    return f"CollectedData_{rel.parts[0]}.csv"
+
+
 def losses_tag(losses: list[str]) -> str:
     return "supervised" if not losses else "+".join(sorted(losses))
 
@@ -237,18 +245,24 @@ def evaluate_model(output_dir: Path, csv_file: str) -> None:
 
 def _main():
     parser = argparse.ArgumentParser(
-        description="Evaluate a trained head-fixed model against every per-dataset test CSV",
+        description="Evaluate a trained head-fixed model against every per-dataset test CSV. "
+                     "Also useful standalone for finishing sweep jobs that trained successfully "
+                     "but stalled before their chained eval step completed.",
     )
     parser.add_argument(
         "--output_dir", required=True, type=Path,
         help="Model output_dir passed to `litpose train`",
     )
     parser.add_argument(
-        "--csv_file", required=True,
-        help="Train CSV filename the model was trained on (for logging only)",
+        "--csv_file", default=None,
+        help="Train CSV filename the model was trained on (for logging only). "
+             "Inferred from output_dir's path structure if omitted.",
     )
     args = parser.parse_args()
-    evaluate_model(args.output_dir, args.csv_file)
+    csv_file = args.csv_file or infer_csv_file(args.output_dir)
+    print(f"output_dir: {args.output_dir}")
+    print(f"csv_file:   {csv_file}")
+    evaluate_model(args.output_dir, csv_file)
 
 
 if __name__ == "__main__":
