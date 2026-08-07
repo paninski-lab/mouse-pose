@@ -155,11 +155,12 @@ See `scripts/preprocessing/ibl-face/README.md` for full details.
 
 ## Currently converted datasets
 
-| Dataset    | Train frames | Test frames | Notes |
-|------------|-------------|-------------|-------|
-| facemap    | 1800        | 100         | left-view; bilateral kps lateralized via `{side}` |
-| ibl        | 7608        | 1446        | wrist + pupil_center + nose_tip + tongue; human-reviewed (July 2026), supersedes `ibl-paw` |
-| cheese-2d  | 665         | 291         | four views (L/R/BC/TC); custom visibility post-processing |
+| Dataset       | Train frames | Test frames | Notes |
+|---------------|--------------|-------------|-------|
+| facemap       | 1800         | 100         | left-view; bilateral kps lateralized via `{side}` |
+| ibl           | 7608         | 1446        | wrist + pupil_center + nose_tip + tongue; human-reviewed (July 2026), supersedes `ibl-paw` |
+| cheese-2d     | 665          | 291         | four views (L/R/BC/TC); custom visibility post-processing |
+| cazettes-side | 830          | 217         | left-view; bilateral kps lateralized via `{side}` |
 
 ---
 

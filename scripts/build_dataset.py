@@ -33,7 +33,7 @@ from mouse_pose.paths import load_paths
 _paths   = load_paths()
 DATA_DIR = Path(_paths["data_dir"])
 
-ALL_DATASETS = ["facemap", "ibl", "cheese-2d"]
+ALL_DATASETS = ["facemap", "ibl", "cheese-2d", "cazettes-side"]
 
 
 def read_csv(path: Path) -> pd.DataFrame:

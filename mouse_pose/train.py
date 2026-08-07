@@ -31,7 +31,7 @@ CONFIG_FILE = repo_root() / "configs" / "model.yaml"
 
 # Every model is evaluated against each dataset's test CSV. Pixel error is NaN
 # for keypoints absent from a given dataset; the plotting script handles filtering.
-EVAL_DATASETS = ["facemap", "ibl", "cheese-2d"]
+EVAL_DATASETS = ["facemap", "ibl", "cheese-2d", "cazettes-side"]
 
 
 # ── naming / output dirs ─────────────────────────────────────────────────────
