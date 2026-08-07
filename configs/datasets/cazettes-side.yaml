@@ -1,0 +1,68 @@
+exclude:
+  keypoints:
+    backTongue
+  sessions:
+
+keypoints:
+  nose: nose_tip
+  upperMouth: nose_bottom
+  lowerMouth: lowerlip
+  rightPaw: wrist_right
+  leftPaw: wrist_left
+  tipTongue: tongue_tip
+  middleTongue: tongue_center
+  pupilCenter: pupil_center_{side}
+
+sessions:
+  EA114_HeadFixFlippingSTIM_Box07_220704a_Body0cropped: left
+  EA114_HeadFixFlippingSTIM_Box07_220705a_Body0cropped: left
+  EA114_HeadFixFlippingSTIM_Box07_220706a_Body0cropped: left
+  EA114_HeadFixFlippingSTIM_Box07_220707a_Body0cropped: left
+  EA114_HeadFixFlippingSTIM_Box07_220708a_Body0cropped: left
+  EA115_HeadFixFlippingSTIM_Box07_220527a_Body0cropped: left
+  EA115_HeadFixFlippingSTIM_Box07_220606a_Body0cropped: left
+  EA115_HeadFixFlippingSTIM_Box07_220607a_Body0cropped: left
+  EA115_HeadFixFlippingSTIM_Box07_220608a_Body0cropped: left
+  EA115_HeadFixFlippingSTIM_Box07_220609a_Body0cropped: left
+  EA115_HeadFixFlippingSTIM_Box07_220613a_Body0cropped: left
+  EA115_HeadFixFlippingSTIM_Box07_220614a_Body0cropped: left
+  EA115_HeadFixFlippingSTIM_Box07_220615a_Body0cropped: left
+  EA115_HeadFixFlippingSTIM_Box07_220617a_Body0cropped: left
+  EA116_HeadFixFlippingSTIM_Box07_220608a_Body0cropped: left
+  EA116_HeadFixFlippingSTIM_Box07_220609a_Body0cropped: left
+  EA116_HeadFixFlippingSTIM_Box07_220613a_Body0cropped: left
+  EA116_HeadFixFlippingSTIM_Box07_220614a_Body0cropped: left
+  EA116_HeadFixFlippingSTIM_Box07_220615a_Body0cropped: left
+  EA116_HeadFixFlippingSTIM_Box07_220617a_Body0cropped: left
+  EA116_HeadFixFlippingSTIM_Box07_220620a_Body0cropped: left
+  EA116_HeadFixFlippingSTIM_Box07_220622a_Body0cropped: left
+  EA117_HeadFixFlippingSTIM_Box07_220704a_Body0cropped: left
+  EA117_HeadFixFlippingSTIM_Box07_220705a_Body0cropped: left
+  EA117_HeadFixFlippingSTIM_Box07_220707a_Body0cropped: left
+  EA117_HeadFixFlippingSTIM_Box07_220708a_Body0cropped: left
+  EA117_HeadFixFlippingSTIM_Box07_220711a_Body0cropped: left
+  EA117_HeadFixFlippingSTIM_Box07_220712a_Body0cropped: left
+  EA117_HeadFixFlippingSTIM_Box07_220713a_Body0cropped: left
+  FC071_HeadFixFlippingSTIM_Box02_191127a_Body0cropped: left
+  FC071_HeadFixFlippingSTIM_Box02_191202a_Body0cropped: left
+  FC071_HeadFixFlippingSTIM_Box02_191203a_Body0cropped: left
+  FC071_HeadFixFlippingSTIM_Box02_191204a_Body0cropped: left
+  FC071_HeadFixFlippingSTIM_Box02_191205a_Body0cropped: left
+  FC071_HeadFixFlippingSTIM_Box02_191206a_Body0cropped: left
+  FC072_HeadFixFlippingSTIM_Box02_191203a_Body0cropped: left
+  FC072_HeadFixFlippingSTIM_Box02_191204a_Body0cropped: left
+  FC072_HeadFixFlippingSTIM_Box02_191205a_Body0cropped: left
+  FC072_HeadFixFlippingSTIM_Box02_191206a_Body0cropped: left
+  FC072_HeadFixFlippingSTIM_Box02_191209a_Body0cropped: left
+  FC072_HeadFixFlippingSTIM_Box02_191211a_Body0cropped: left
+  FC075_HeadFixFlippingSTIM_Box02_200123a_Body0cropped: left
+  FC075_HeadFixFlippingSTIM_Box02_200124a_Body0cropped: left
+  FC075_HeadFixFlippingSTIM_Box02_200127a_Body0cropped: left
+  FC075_HeadFixFlippingSTIM_Box02_200128a_Body0cropped: left
+  FC075_HeadFixFlippingSTIM_Box02_200129a_Body0cropped: left
+  FC075_HeadFixFlippingSTIM_Box02_200130a_Body0cropped: left
+  FC075_HeadFixFlippingSTIM_Box02_200131a_Body0cropped: left
+  FC076_HeadFixFlippingSTIM_Box02_200221a_Body0-Trimcropped: left
+  FC076_HeadFixFlippingSTIM_Box02_200222b_Body0cropped: left
+  FC076_HeadFixFlippingSTIM_Box02_200224a_Body0cropped: left
+  FC076_HeadFixFlippingSTIM_Box02_200225a_Body0-Trimcropped: left
