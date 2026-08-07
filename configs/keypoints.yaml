@@ -15,6 +15,14 @@ keypoints:
   - eye_top_right
   - pupil_center_left
   - pupil_center_right
+  # - pupil_back_left
+  # - pupil_back_right
+  # - pupil_bottom_left
+  # - pupil_bottom_right
+  # - pupil_front_left
+  # - pupil_front_right
+  # - pupil_top_left
+  # - pupil_top_right
 
   # ── nose / mouth (lateralized) ────────────────────────────────────────────
   - upperlip_right
@@ -30,6 +38,8 @@ keypoints:
   - pad_center
   - mouth
   - lowerlip
+  - tongue_tip
+  - tongue_center
 
   # ── whiskers ──────────────────────────────────────────────────────────────
   - whisker_c1_left
