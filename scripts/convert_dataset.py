@@ -23,9 +23,9 @@ Visibility convention (per Lightning Pose's training.uniform_heatmaps_for_nan_ke
 
 A vis=1 default is only correct when the keypoint really might be occluded/absent in
 that frame. Where a keypoint is known to actually be visible but wasn't given a
-coordinate for structural reasons (e.g. cheese-2d's _CHEESE_NULL_KPS), the
-per-dataset post-processing below forces vis 1 -> 0 instead, so the model isn't taught
-to expect low confidence on a keypoint that's really there.
+coordinate for structural reasons (e.g. hantman-mv/kaufman's unlabeled-but-visible
+left paw), the per-dataset post-processing below forces vis 1 -> 0 instead, so the
+model isn't taught to expect low confidence on a keypoint that's really there.
 
 Usage:
   python scripts/convert_dataset.py --dataset facemap
@@ -60,47 +60,6 @@ TEST_CSV   = "CollectedData_test.csv"
 #
 # Called after process_split() completes (canonical names, remapped index).
 # To add a new dataset: define a function below and register it in POST_PROCESS.
-
-# cheese-2d: keypoints that are expected to be visible in null (head-on) sessions.
-# Missing labels for these are annotation gaps, not occlusion → vis=0 so the
-# model is not trained to suppress these heatmaps.
-_CHEESE_NULL_KPS = frozenset([
-    "nose_tip", "nose_top",
-    "eye_front_left",  "eye_top_left",  "eye_back_left",  "eye_bottom_left",
-    "ear_base_left",   "ear_top_left",  "ear_tip_left",   "ear_bottom_left",
-    "pad_top_left",    "pad_side_left", "pad_center",
-    "eye_front_right", "eye_top_right", "eye_back_right", "eye_bottom_right",
-    "ear_base_right",  "ear_top_right", "ear_tip_right",  "ear_bottom_right",
-    "pad_top_right",   "pad_side_right",
-])
-
-
-def _post_process_cheese2d(df: pd.DataFrame, config: dict) -> pd.DataFrame:
-    cfg_sessions = config.get("sessions") or {}
-    sides = pd.Series(
-        [cfg_sessions.get(Path(p).parts[-2]) for p in df.index], index=df.index
-    )
-    # YAML `null` loads as None, so head-on sessions (BC/TC, mapped to null in the config) arrive
-    # here as None, not the string "null". Until 2026-09-20 the comparison below was string-only and
-    # never matched: every unlabeled ear/eye in a head-on frame stayed visible=1 (suppression) instead
-    # of 0 (masked), and the model was trained that ears do not exist in BC/TC views.
-    is_null  = (sides.isna() | (sides == "null")).to_numpy()
-    is_left  = (sides == "left").to_numpy()
-    is_right = (sides == "right").to_numpy()
-
-    for kp in df.columns.get_level_values(1).unique():
-        vis_col = (SCORER, kp, "visible")
-        is_vis1 = (df[vis_col] == 1.0).to_numpy()
-
-        if kp in _CHEESE_NULL_KPS:
-            df[vis_col] = np.where(is_null & is_vis1, 0.0, df[vis_col].to_numpy())
-        if kp.endswith("_left"):
-            df[vis_col] = np.where(is_left & is_vis1, 0.0, df[vis_col].to_numpy())
-        if kp.endswith("_right"):
-            df[vis_col] = np.where(is_right & is_vis1, 0.0, df[vis_col].to_numpy())
-
-    return df
-
 
 # hantman-mv: every session is lateralized to "right" (configs/datasets/hantman-mv.yaml) --
 # the camera is mounted on the right side of the body, so the original annotator only ever
@@ -143,7 +102,6 @@ def _post_process_kaufman(df: pd.DataFrame, config: dict) -> pd.DataFrame:
 
 
 POST_PROCESS: dict[str, object] = {
-    "cheese-2d": _post_process_cheese2d,
     "hantman-mv": _post_process_hantman_mv,
     "kaufman": _post_process_kaufman,
 }

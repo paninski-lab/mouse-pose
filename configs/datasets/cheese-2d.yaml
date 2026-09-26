@@ -31,6 +31,8 @@ keypoints:
   ear(bottom)(right): ear_bottom_right
   pad(top)(right): pad_top_right
   pad(side)(right): pad_side_right
+  wrist_left: wrist_left
+  wrist_right: wrist_right
 
 sessions:
   20231013_B6_long-anes_awake_000_BC_09-36-00: null

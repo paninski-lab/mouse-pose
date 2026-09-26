@@ -67,8 +67,11 @@ than picking a default and mentioning it after the fact.
    `visible=0` ("not part of this dataset") — training on that teaches the model to
    predict a suppressed heatmap for a side that was never captured at all. Add a
    `POST_PROCESS["<name>"]` function in `scripts/convert_dataset.py` to force those
-   columns to `visible=0`; see `cheese-2d` (per-session left/right/null) and
-   `hantman-mv` (every session the same side, so simpler) for two versions of this.
+   columns to `visible=0`; see `hantman-mv`/`kaufman` for this (every session the same
+   side). If a dataset instead varies side *per session* (as `cheese-2d` once did,
+   before all its keypoints were fully labeled), the post-process function needs to key
+   off the session-to-side mapping in `configs/datasets/<name>.yaml` rather than
+   applying one rule dataset-wide.
 
 3. **Multi-view sources.** If the raw data has more than one camera view (or more
    generally, more than one natural sub-grouping), should each view become its own
