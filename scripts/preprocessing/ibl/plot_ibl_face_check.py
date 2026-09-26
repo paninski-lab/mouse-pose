@@ -6,7 +6,7 @@ Reads CollectedData.csv / CollectedData_test.csv from _raw/ibl/ and
 renders one image per labeled frame to _raw/ibl/labeled-data-check/{split}/.
 
 Usage:
-    conda run -n iblvideo2 python scripts/preprocessing/ibl-face/plot_ibl_face_check.py
+    conda run -n iblvideo2 python scripts/preprocessing/ibl/plot_ibl_face_check.py
 """
 
 from pathlib import Path

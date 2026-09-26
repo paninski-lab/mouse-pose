@@ -4,7 +4,7 @@ This directory holds one subfolder per dataset that needed custom work *before*
 `scripts/convert_dataset.py` could run on it — anything not already in the standard
 DLC layout (`labeled-data/<session>/<frame>.png` + `CollectedData.csv` +
 `CollectedData_test.csv`, all keypoints as plain `x`/`y` columns, NaN = unlabeled).
-See `ibl-face/` (DLC source, but needs pseudo-label generation first),
+See `ibl/` (DLC source, but needs pseudo-label generation first),
 `hantman-sleap/` (raw SLEAP `.slp` source), and `hantman-mv/` (already DLC-format, but
 split across per-view CSVs that need merging into one single-view project) for three
 different examples.

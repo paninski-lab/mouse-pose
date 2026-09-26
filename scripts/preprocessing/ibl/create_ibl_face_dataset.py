@@ -21,7 +21,7 @@ Session videos: _raw/ibl/session_videos/{split}/{session}/videos/_iblrig_leftCam
 Parquets:       _raw/ibl/session_videos/{split}/{session}/alf/_ibl_leftCamera.lightningPose.pqt
 
 Run in iblvideo2 conda env:
-    conda run -n iblvideo2 python scripts/preprocessing/ibl-face/create_ibl_face_dataset.py
+    conda run -n iblvideo2 python scripts/preprocessing/ibl/create_ibl_face_dataset.py
 
     --dry_run        Print plan; no videos or inference
     --skip_video     Skip video creation if mp4 already exists
@@ -321,7 +321,7 @@ def main(dry_run=False, skip_video=False, skip_pipeline=False):
     print("\nDone.")
     if not dry_run:
         print(f"\nNext steps:")
-        print(f"  1. conda run -n iblvideo2 python scripts/preprocessing/ibl-face/plot_ibl_face_check.py")
+        print(f"  1. conda run -n iblvideo2 python scripts/preprocessing/ibl/plot_ibl_face_check.py")
         print(f"  2. Review check images in {IBL_DIR / 'labeled-data-check'}/")
         print(f"  3. conda run -n pose python scripts/convert_dataset.py --dataset ibl")
         print(f"  4. Rebuild merged datasets with scripts/build_dataset.py")

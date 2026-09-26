@@ -1,4 +1,4 @@
-# ibl-face dataset changelog
+# ibl dataset changelog
 
 See [`README.md`](README.md) for the pseudo-labeling pipeline.
 

@@ -5,7 +5,7 @@ from tests.download_test_data import _download_lp_test_data
 #
 # ckpts_path = download_lp_models()
 # pqt = lightning_pose(
-#     mp4_file='/media/mattw/poseinterface/_raw/ibl-face/session_videos/train/03d9a098-07bf-4765-88b7-85f8d8f620cc_left/videos/_iblrig_leftCamera.raw.mp4',
+#     mp4_file='/media/mattw/poseinterface/_raw/ibl/session_videos/train/03d9a098-07bf-4765-88b7-85f8d8f620cc_left/videos/_iblrig_leftCamera.raw.mp4',
 #     ckpts_path=ckpts_path,
 #     remove_files=False,
 # )

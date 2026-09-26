@@ -56,16 +56,16 @@ Output keypoints: `paw_l`, `paw_r`, `pupil_center_r`, `nose_tip`, `tongue_end_r`
 
 ```bash
 # Full run
-conda run -n iblvideo2 python scripts/preprocessing/ibl-face/create_ibl_face_dataset.py
+conda run -n iblvideo2 python scripts/preprocessing/ibl/create_ibl_face_dataset.py
 
 # Re-run without rebuilding videos (e.g. after fixing a config)
-conda run -n iblvideo2 python scripts/preprocessing/ibl-face/create_ibl_face_dataset.py --skip_video
+conda run -n iblvideo2 python scripts/preprocessing/ibl/create_ibl_face_dataset.py --skip_video
 
 # Skip both video and inference (re-extract/merge from existing parquets)
-conda run -n iblvideo2 python scripts/preprocessing/ibl-face/create_ibl_face_dataset.py --skip_video --skip_pipeline
+conda run -n iblvideo2 python scripts/preprocessing/ibl/create_ibl_face_dataset.py --skip_video --skip_pipeline
 
 # Render check images
-conda run -n iblvideo2 python scripts/preprocessing/ibl-face/plot_ibl_face_check.py
+conda run -n iblvideo2 python scripts/preprocessing/ibl/plot_ibl_face_check.py
 ```
 
 ## After the pipeline
