@@ -31,6 +31,14 @@ copy — they can be in a "mixed", in-progress state between bumps. The
   started for it. In the latter case the changelog entry for v0 should say
   explicitly that it may already include undocumented pre-versioning edits,
   so it isn't mistaken for a genuinely pristine collaborator copy.
+  - **Before drafting a v0 message, read the existing `CHANGELOG.md` tail
+    first.** If it already has entries describing label edits, v0 needs the
+    "predates versioning, best-available not pristine" caveat, and the
+    message should briefly name/date the specific prior entries it's
+    absorbing (see `cazettes-side`/`kondo`/`ibl` for examples) — don't just
+    write generic boilerplate. If there's no changelog yet, or it has no
+    edit history (e.g. `kaufman`, first entry ever), v0 is a plain
+    "as received, no edits yet" snapshot instead — no caveat needed.
 - **Version 1+** are our own edits on top of that.
 - When onboarding a brand-new dataset, run the bump script once immediately
   after the raw data lands in `_raw/<dataset>/`, *before* making any edits —
@@ -46,6 +54,13 @@ python scripts/bump_version.py <dataset> --initials <XX> --message-file <path> [
   **and** have a corresponding `scripts/preprocessing/<dataset>/` directory —
   the script won't guess where to put a new dataset's changelog, so create
   that directory first if it doesn't exist yet.
+- If that directory exists but has no `CHANGELOG.md` yet (e.g. a dataset whose
+  folder only ever held a conversion script/README), the script creates one
+  with a bare `# <dataset> dataset changelog` header and nothing else — it has
+  no source material to write a real intro from. **Add a one- or two-sentence
+  description by hand afterward**, matching sibling datasets' style (source
+  format + a link to that dataset's own `README.md` and/or
+  `configs/datasets/<name>.yaml`) — don't leave it at the bare header.
 - `--message-file` points at a small markdown file containing just the bullet
   list body for the changelog entry (no `###` header — the script writes
   that). Write it the same way as existing entries in that dataset's
