@@ -4,6 +4,16 @@ See [`README.md`](README.md) for the conversion pipeline and design decisions.
 
 ## Changelog
 
+### 2026-09-26 (MW) (version 0)
+- First versioned snapshot of hantman-mv's label CSVs. This predates the
+  versioning scheme, so v0 is the best-available current state rather than a
+  pristine collaborator copy — it already includes the undocumented
+  pre-versioning edits logged above (2026-09-15 new eye/nose keypoints +
+  manual labels, derived-then-manually-corrected `wrist_new` column;
+  2026-09-17 empty `ear_*` keypoints added). Neither of those additions is
+  reproduced by `convert_hantman_mv.py` — see the note at the bottom of this
+  changelog.
+
 ### 2026-09-22 (MW)
 - Ran `scripts/preprocessing/extract_clips.py` (see
   [`cazettes-side/CHANGELOG.md`](../cazettes-side/CHANGELOG.md) for where that script came

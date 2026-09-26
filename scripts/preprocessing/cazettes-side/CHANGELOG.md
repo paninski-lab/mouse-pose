@@ -8,6 +8,14 @@ for the current keypoint mapping.
 
 ## Changelog
 
+### 2026-09-26 (MW) (version 0)
+- First versioned snapshot of cazettes-side's label CSVs. This predates the
+  versioning scheme, so v0 is the best-available current state rather than a
+  pristine collaborator copy — it already includes the undocumented
+  pre-versioning edits logged above (2026-08-07 `pupilCenter` keypoint added +
+  manual `rightPaw`/`leftPaw` adjustments; 2026-09-17 empty `ear_*` keypoints
+  added).
+
 ### 2026-09-22 (MW)
 - Added `mouse_pose/videos.py` (`make_video_snippet` + motion-energy helpers) and the
   general-purpose `scripts/preprocessing/extract_clips.py` wrapper (ported from an

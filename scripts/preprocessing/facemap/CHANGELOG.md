@@ -10,6 +10,13 @@ for the current keypoint mapping.
 
 ## Changelog
 
+### 2026-09-26 (MW) (version 0)
+- First versioned snapshot of facemap's label CSVs. This predates the
+  versioning scheme, so v0 is the best-available current state rather than a
+  pristine collaborator copy — it already includes the undocumented
+  pre-versioning edits logged above (2026-09-17 empty `ear_*` keypoints added;
+  2026-09-22 manual `pupil` labels added).
+
 ### 2026-09-22 (MW)
 - Added manual labels for the `pupil` keypoint to `CollectedData.csv` and `CollectedData_test.csv`.
   Added `pupil: pupil_center_{side}` to the `keypoints` mapping in

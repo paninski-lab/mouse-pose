@@ -8,10 +8,17 @@ current keypoint mapping.
 
 ## Changelog
 
+### 2026-09-26 (MW) (version 0)
+- First versioned snapshot of cheese-2d's label CSVs. This predates the versioning
+  scheme, so v0 is the best-available current state rather than a pristine
+  collaborator copy — it already includes the undocumented pre-versioning edits
+  logged above (the 2026-09-24 LA keypoint infill, 2026-09-25 `POST_PROCESS`
+  override removal, and 2026-09-26 manual ear/eye/paw label check).
+
 ### 2026-09-26 (MW)
 - Manually checked all ear, eye, and paw labels (a mix of manual labels and the
   pseudo-labels from the 2026-09-25 infill), fixed obvious mislabels, and infilled
-  remaining missing labels.
+  remaining missing labels. Adjusted every ear base label to be more consistent.
 
 ### 2026-09-25 (MW)
 - Removed the `POST_PROCESS["cheese-2d"]` override (`_post_process_cheese2d`) from

@@ -7,6 +7,15 @@ current keypoint mapping.
 
 ## Changelog
 
+### 2026-09-26 (MW) (version 0)
+- First versioned snapshot of kondo's label CSVs. This predates the versioning
+  scheme, so v0 is the best-available current state rather than a pristine
+  collaborator copy — it already includes the undocumented pre-versioning
+  edits logged above (2026-08-17 manual `rightpawcenter`/`leftpawcenter`
+  adjustments to align with IBL paw labels; 2026-09-26 manual
+  `earroot`/`earlateral`/`eartip` adjustments to align with cheese-2d ear
+  landmark definitions).
+
 ### 2026-09-26 (MW)
 - Manually adjusted the `earroot`/`earlateral`/`eartip` labels to be consistent with
   the ear landmark definitions used in `cheese-2d`.
