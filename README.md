@@ -134,7 +134,7 @@ Some datasets need custom work before the standard convert step (pseudo-label
 generation, pulling frames from a non-DLC source format, etc.). Each one has its own
 README under `scripts/preprocessing/`.
 
-**Before starting a new one, see [`scripts/preprocessing/README.md`](scripts/preprocessing/README.md)**
+**Before starting a new one, see [`skills/preprocess-new-dataset/README.md`](skills/preprocess-new-dataset/README.md)**
 — it has the checklist of decisions (new keypoints, laterality, multi-view merging,
 train/test split) that need a human call rather than an inferred default.
 
@@ -277,7 +277,7 @@ whether a run finished locally or on Lightning AI.
 ### Adding a new dataset
 
 Dataset onboarding is three stages — see
-[`scripts/preprocessing/README.md`](scripts/preprocessing/README.md) for the full model,
+[`skills/preprocess-new-dataset/README.md`](skills/preprocess-new-dataset/README.md) for the full model,
 what to ask before starting, and stage 1 (convert to LP format) in detail. This section
 covers stages 2 and 3, which live in this repo's shared config rather than in
 `scripts/preprocessing/`.

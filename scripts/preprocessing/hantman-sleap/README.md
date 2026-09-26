@@ -3,7 +3,7 @@
 Builds `_raw/hantman` (side + front views combined) from raw SLEAP output at
 `_raw/_dlc/hantman/{side,front}_v*.slp`.
 
-**Status: stage 1 only** (see [`scripts/preprocessing/README.md`](../README.md) for what
+**Status: stage 1 only** (see [`skills/preprocess-new-dataset/README.md`](../../../skills/preprocess-new-dataset/README.md) for what
 that means). A draft `configs/datasets/hantman.yaml` exists — mapping `wrist`/`digit2`/
 `digit4` → `_right`, excluding `pellet` — but isn't usable yet since `digit2`/`digit4`
 aren't in `configs/keypoints.yaml`/`model.yaml`.
@@ -58,8 +58,8 @@ opens correctly in the Lightning Pose labeling app.
   (right) paw. Not recoverable from a single frame's pixels (mirroring/camera
   convention is ambiguous), so this was confirmed with the user rather than guessed.
 - **Test fraction:** ~15%, subject-level, pooled across views — also a user call, not
-  a default. See `scripts/preprocessing/README.md` for why these are asked rather
-  than assumed for every new dataset.
+  a default. See `skills/preprocess-new-dataset/README.md` for why these are asked
+  rather than assumed for every new dataset.
 
 ## Scripts
 
@@ -80,4 +80,4 @@ conda run -n pose python scripts/preprocessing/hantman-sleap/convert_hantman_sle
 
 Add `digit2_left/right`, `digit4_left/right` to `configs/keypoints.yaml`/`model.yaml`,
 then follow the generic template in
-[`scripts/preprocessing/README.md`](../README.md#documenting-a-stage-1-only-dataset).
+[`skills/preprocess-new-dataset/README.md`](../../../skills/preprocess-new-dataset/README.md#documenting-a-stage-1-only-dataset).

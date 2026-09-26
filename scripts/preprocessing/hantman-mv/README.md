@@ -7,7 +7,7 @@ Builds `_raw/hantman-mv` (single-view) from the multi-view DLC project at
 validates cleanly, and `configs/keypoints.yaml`/`configs/model.yaml` already carry the
 8 new canonical keypoints it needs (`d1_tip`–`d4_tip`, lateralized), but
 `scripts/convert_dataset.py --dataset hantman-mv` has not been run — see
-[`scripts/preprocessing/README.md`](../README.md) for what that means. Unlike `hantman`
+[`skills/preprocess-new-dataset/README.md`](../../../skills/preprocess-new-dataset/README.md) for what that means. Unlike `hantman`
 (the older, 4-keypoint reaching dataset — see `../hantman-sleap/`), `hantman-mv` has a
 fuller finger/paw/pellet(+face) skeleton and is a separate dataset entirely; nothing here
 merges the two.
