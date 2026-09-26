@@ -7,6 +7,10 @@ current keypoint mapping.
 
 ## Changelog
 
+### 2026-09-26 (MW)
+- Manually adjusted the `earroot`/`earlateral`/`eartip` labels to be consistent with
+  the ear landmark definitions used in `cheese-2d`.
+
 ### 2026-09-22 (MW)
 - Ran `scripts/preprocessing/extract_clips.py` (see
   [`cazettes-side/CHANGELOG.md`](../cazettes-side/CHANGELOG.md) for where that script
